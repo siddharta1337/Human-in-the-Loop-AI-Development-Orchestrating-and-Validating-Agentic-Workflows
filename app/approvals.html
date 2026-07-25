@@ -74,10 +74,11 @@
         Provide Rejection Reason
       </div>
       <div class="dialog-body">
+        <div id="rejection-error-alert" class="alert alert-danger" style="display: none;"></div>
         <form id="rejection-form">
           <input type="hidden" id="reject-expense-id">
           <div class="form-group">
-            <label for="reject-notes">Reason for Rejection</label>
+            <label for="reject-notes">Reason for Rejection *</label>
             <textarea id="reject-notes" class="form-control" rows="4" placeholder="Enter details on why this expense claim is being rejected..."></textarea>
           </div>
         </form>

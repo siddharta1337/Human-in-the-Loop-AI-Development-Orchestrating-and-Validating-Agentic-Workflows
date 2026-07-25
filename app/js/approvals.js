@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const dialogOverlay = document.getElementById('rejection-dialog');
   const rejectNotesInput = document.getElementById('reject-notes');
   const rejectExpenseIdInput = document.getElementById('reject-expense-id');
+  const rejectionErrorAlert = document.getElementById('rejection-error-alert');
 
   // Filter Buttons
   const filterAllBtn = document.getElementById('filter-all');
@@ -27,7 +28,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   filterBtns.forEach(btnInfo => {
     if (btnInfo.el) {
       btnInfo.el.addEventListener('click', () => {
-        // Set active class
         filterBtns.forEach(b => b.el.classList.remove('active'));
         btnInfo.el.classList.add('active');
         activeFilter = btnInfo.val;
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       tbody.innerHTML = `
         <tr>
           <td colspan="7" style="text-align: center; color: #888; padding: 20px;">
-            No claims found matching the filter "${activeFilter}".
+            No claims found matching the filter "${escapeHTML(activeFilter)}".
           </td>
         </tr>
       `;
@@ -77,11 +77,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (exp.status === 'Approved') statusClass = 'badge-approved';
       if (exp.status === 'Rejected') statusClass = 'badge-rejected';
 
-      const formattedAmount = typeof exp.amount === 'number' 
-        ? exp.amount.toFixed(2) 
+      const formattedAmount = typeof exp.amount === 'number'
+        ? exp.amount.toFixed(2)
         : parseFloat(exp.amount || 0).toFixed(2);
 
       let actionCell = '';
+      // Edge Case: An expense that has already been decided cannot be decided a second time.
       if (exp.status === 'Pending') {
         actionCell = `
           <div style="display: flex; gap: 8px;">
@@ -95,26 +96,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       return `
         <tr>
-          <td style="white-space: nowrap;">${exp.date}</td>
+          <td style="white-space: nowrap;">${escapeHTML(exp.date)}</td>
           <td style="font-weight: bold;">${escapeHTML(exp.employeeName)}</td>
           <td><span class="expense-category-tag">${escapeHTML(exp.category)}</span></td>
           <td>${escapeHTML(exp.description)}</td>
           <td style="font-weight: bold; text-align: right;">$${formattedAmount}</td>
-          <td><span class="badge ${statusClass}">${exp.status}</span></td>
+          <td><span class="badge ${statusClass}">${escapeHTML(exp.status)}</span></td>
           <td>${actionCell}</td>
         </tr>
       `;
     }).join('');
 
-    // Attach button events
+    // Attach Approve button events
     document.querySelectorAll('.btn-approve').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-id');
-        updateExpenseStatus(id, 'Approved', 'Approved by Finance');
+        const result = updateExpenseStatus(id, 'Approved', 'Approved by Finance');
+        if (!result.success) {
+          alert(`Error approving expense: ${result.errors.join(', ')}`);
+        }
         render();
       });
     });
 
+    // Attach Reject button events
     document.querySelectorAll('.btn-reject').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-id');
@@ -127,12 +132,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   function openRejectionDialog(id) {
     rejectExpenseIdInput.value = id;
     rejectNotesInput.value = '';
+    if (rejectionErrorAlert) {
+      rejectionErrorAlert.style.display = 'none';
+      rejectionErrorAlert.innerHTML = '';
+    }
     dialogOverlay.classList.add('active');
     rejectNotesInput.focus();
   }
 
   function closeRejectionDialog() {
     dialogOverlay.classList.remove('active');
+    if (rejectionErrorAlert) {
+      rejectionErrorAlert.style.display = 'none';
+      rejectionErrorAlert.innerHTML = '';
+    }
   }
 
   // Dialog handlers
@@ -147,7 +160,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     confirmRejectBtn.addEventListener('click', () => {
       const id = rejectExpenseIdInput.value;
       const notes = rejectNotesInput.value;
-      updateExpenseStatus(id, 'Rejected', notes);
+
+      const result = updateExpenseStatus(id, 'Rejected', notes);
+
+      if (!result.success) {
+        if (rejectionErrorAlert) {
+          rejectionErrorAlert.innerHTML = `<strong>Error:</strong> ${result.errors.map(err => escapeHTML(err)).join('<br>')}`;
+          rejectionErrorAlert.style.display = 'block';
+        } else {
+          alert(`Rejection error: ${result.errors.join(', ')}`);
+        }
+        return;
+      }
+
       closeRejectionDialog();
       render();
     });
@@ -165,7 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Escape HTML helper
   function escapeHTML(str) {
     if (!str) return '';
-    return str
+    return String(str)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -173,9 +198,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       .replace(/'/g, '&#039;');
   }
 
-  // Listen to custom store update events
+  // Listen to custom store update events & multi-tab storage updates
   window.addEventListener('reimbursr-store-updated', render);
-  // Synchronize across multiple windows/tabs
   window.addEventListener('storage', (e) => {
     if (e.key === 'reimbursr_expenses') {
       render();

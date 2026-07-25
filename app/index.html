@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reimbursr (BETA) - Expense Submission Portal</title>
+  <title>Reimbursr (BETA) - Employee Portal</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -22,65 +22,67 @@
     <!-- Running Totals Dashboard -->
     <div class="totals-container">
       <div class="total-item">
-        <div class="total-label">Total Spent (Approved)</div>
+        <div class="total-label">Total Approved Spent</div>
         <div id="total-approved" class="total-value approved-spent">$0.00</div>
       </div>
       <div class="total-item">
-        <div class="total-label">Pending Reimbursement</div>
+        <div class="total-label">Total Pending Review</div>
         <div id="total-pending" class="total-value pending-spent">$0.00</div>
       </div>
     </div>
 
-    <!-- Main Workspace -->
     <div class="dashboard-grid">
       <!-- Submit Expense Card -->
       <div class="card">
         <div class="card-header">
-          Submit New Expense
+          Submit Out-of-Pocket Expense
         </div>
         <div class="card-body">
-          <form id="expense-form">
+          <div id="validation-error-alert" class="alert alert-danger" style="display: none;"></div>
+          <div id="submission-success-alert" class="alert alert-success" style="display: none;"></div>
+
+          <form id="expense-form" novalidate>
             <div class="form-group">
-              <label for="employeeName">Employee Name</label>
-              <input type="text" id="employeeName" class="form-control" placeholder="e.g. John Doe">
+              <label for="employeeName">Employee Name *</label>
+              <input type="text" id="employeeName" class="form-control" placeholder="e.g. Jane Smith">
             </div>
-            
+
             <div class="form-group">
-              <label for="category">Category</label>
+              <label for="category">Category *</label>
               <select id="category" class="form-control">
-                <option value="" disabled selected>Select category...</option>
-                <option value="Meals">Meals</option>
+                <option value="" disabled selected>-- Select Expense Category --</option>
                 <option value="Travel">Travel</option>
-                <option value="Software">Software</option>
-                <option value="Office Supplies">Office Supplies</option>
+                <option value="Meals">Meals</option>
+                <option value="Lodging">Lodging</option>
+                <option value="Supplies">Supplies</option>
                 <option value="Other">Other</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="expenseDate">Date of Expense</label>
+              <label for="expenseDate">Expense Date *</label>
               <input type="date" id="expenseDate" class="form-control">
             </div>
 
             <div class="form-group">
-              <label for="amount">Amount ($)</label>
-              <input type="number" id="amount" class="form-control" step="0.01" placeholder="0.00">
+              <label for="amount">Amount ($) *</label>
+              <input type="number" id="amount" class="form-control" step="0.01" min="0.01" placeholder="0.00">
             </div>
 
             <div class="form-group">
-              <label for="description">Description</label>
-              <textarea id="description" class="form-control" rows="3" placeholder="Provide details about this expense..."></textarea>
+              <label for="description">Description *</label>
+              <textarea id="description" class="form-control" rows="3" placeholder="Provide details regarding the out-of-pocket expense..."></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Submit Claim</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Expense Claim</button>
           </form>
         </div>
       </div>
 
-      <!-- Submission History Card -->
-      <div class="card" style="grid-column: span 2;">
+      <!-- Employee Expense Tracker Card -->
+      <div class="card">
         <div class="card-header">
-          Recent Expense Claims
+          My Submitted Expense Claims
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -93,7 +95,6 @@
                   <th>Description</th>
                   <th>Amount</th>
                   <th>Status</th>
-                  <th>Finance Notes</th>
                 </tr>
               </thead>
               <tbody id="expense-list-body">

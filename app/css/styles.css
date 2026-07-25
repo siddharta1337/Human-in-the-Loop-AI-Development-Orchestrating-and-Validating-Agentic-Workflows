@@ -31,7 +31,7 @@ body {
 
 /* Page container */
 .container {
-  max-width: 1000px;
+  max-width: 1150px;
   margin: 0 auto;
 }
 
@@ -147,9 +147,16 @@ nav {
 /* --- Widgets / Dashboard Cards --- */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 330px 1fr;
   gap: 20px;
   margin-bottom: 25px;
+  align-items: start;
+}
+
+@media (max-width: 850px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
@@ -489,3 +496,32 @@ nav {
   border-radius: 4px;
   border: 1px solid #d9e2eb;
 }
+
+/* --- Validation & Alert Banners --- */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.alert-danger {
+  background: linear-gradient(180deg, #fff0f0 0%, #ffd6d6 100%);
+  border-color: #d82c2c;
+  color: #841515;
+}
+
+.alert-danger ul {
+  margin-left: 20px;
+  margin-top: 5px;
+}
+
+.alert-success {
+  background: linear-gradient(180deg, #f0fff0 0%, #d4edd5 100%);
+  border-color: #39b54a;
+  color: #155724;
+}
+

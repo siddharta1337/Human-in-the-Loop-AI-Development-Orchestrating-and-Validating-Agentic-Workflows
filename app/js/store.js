@@ -1,4 +1,5 @@
 // store.js - Vanilla ES6 Store utilizing localStorage and seeded from seed.json
+import { validateExpenseSubmission, validateStatusUpdate } from './rules.js';
 
 const STORAGE_KEY = 'reimbursr_expenses';
 
@@ -31,41 +32,89 @@ export function getExpenses() {
 export function saveExpenses(expenses) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-    // Dispatch a custom event to notify other parts of the app if needed
+    // Dispatch custom event for cross-component update
     window.dispatchEvent(new CustomEvent('reimbursr-store-updated'));
   } catch (error) {
     console.error('Error writing to localStorage:', error);
   }
 }
 
+/**
+ * Adds an expense after running full specification validation.
+ * Edge case: A submission that fails validation creates no record at all.
+ * Deduplication: Identical submissions produce no duplicate record.
+ */
 export function addExpense({ employeeName, category, amount, date, description }) {
   const expenses = getExpenses();
+
+  const validation = validateExpenseSubmission(
+    { employeeName, category, amount, date, description },
+    expenses
+  );
+
+  if (!validation.isValid) {
+    return {
+      success: false,
+      errors: validation.errors,
+      isDuplicate: validation.isDuplicate
+    };
+  }
+
   const newExpense = {
     id: `exp-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    employeeName: (employeeName || '').trim() || 'Anonymous',
-    category: category || 'Other',
-    amount: parseFloat(amount) || 0,
-    date: date || new Date().toISOString().split('T')[0],
-    description: (description || '').trim() || 'No description provided',
+    employeeName: validation.candidate.employeeName,
+    category: validation.candidate.category,
+    amount: validation.candidate.amount,
+    date: validation.candidate.date,
+    description: validation.candidate.description,
     status: 'Pending',
     submittedAt: new Date().toISOString(),
     notes: ''
   };
-  expenses.unshift(newExpense); // Put newest first
+
+  expenses.unshift(newExpense); // Newest first
   saveExpenses(expenses);
-  return newExpense;
+
+  return {
+    success: true,
+    expense: newExpense
+  };
 }
 
-export function updateExpenseStatus(id, status, notes = '') {
+/**
+ * Updates status of an expense (Approved / Rejected) with validation.
+ * Edge case: An expense that has already been decided cannot be decided a second time.
+ * Expectation: Rejection requires notes/reason for the employee.
+ */
+export function updateExpenseStatus(id, newStatus, notes = '') {
   const expenses = getExpenses();
   const expenseIndex = expenses.findIndex(exp => exp.id === id);
-  if (expenseIndex !== -1) {
-    expenses[expenseIndex].status = status;
-    expenses[expenseIndex].notes = notes.trim();
-    saveExpenses(expenses);
-    return expenses[expenseIndex];
+
+  if (expenseIndex === -1) {
+    return {
+      success: false,
+      errors: ['Expense claim not found.']
+    };
   }
-  return null;
+
+  const expense = expenses[expenseIndex];
+  const validation = validateStatusUpdate(expense, newStatus, notes);
+
+  if (!validation.isValid) {
+    return {
+      success: false,
+      errors: validation.errors
+    };
+  }
+
+  expenses[expenseIndex].status = newStatus;
+  expenses[expenseIndex].notes = (notes || '').trim();
+  saveExpenses(expenses);
+
+  return {
+    success: true,
+    expense: expenses[expenseIndex]
+  };
 }
 
 export function getTotals() {
