@@ -43,8 +43,8 @@ What the system must not allow:
   submission missing any of them is not accepted.
 - Category must be one of: Travel, Meals, Lodging, Supplies, Other.
 - Once submitted, an expense cannot be edited by the employee who submitted it.
-- _[ 1 ]_
-- _[ 2 ]_
+- Amounts must be positive.
+- An expense cannot be dated in the future.
 
 ---
 
@@ -55,7 +55,7 @@ What happens at the boundaries:
 - A submission that fails validation creates no record at all , not a partial
   one, not a draft.
 - An expense that has already been decided cannot be decided a second time.
-- _[ 3 ]_
+- The same expense submitted twice is one expense, not two.
 
 ---
 
@@ -68,7 +68,8 @@ What "done" means:
 - A finance reviewer can act on every submission that is waiting for one.
 - Every rule in Constraints and Edge Cases is enforced when the expense is
   submitted, not left for the reviewer to catch.
-- _[ 4 ]_
+- A rejected submission tells the employee why it was rejected. A silent
+  discard does not count as done.
 
 ---
 
