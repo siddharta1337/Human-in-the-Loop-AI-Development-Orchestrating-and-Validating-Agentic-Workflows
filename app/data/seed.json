@@ -3,20 +3,20 @@
     "id": "exp-001",
     "employeeName": "John Doe",
     "category": "Meals",
-    "amount": 42.50,
+    "amount": "9.00",
     "date": "2026-07-20",
     "description": "Client lunch at Romano's Grill",
-    "status": "Approved",
+    "status": "Pending",
     "submittedAt": "2026-07-20T14:30:00.000Z",
-    "notes": "Approved standard client dinner."
+    "notes": ""
   },
   {
     "id": "exp-002",
     "employeeName": "Jane Smith",
-    "category": "Travel",
-    "amount": 350.00,
+    "category": "Supplies",
+    "amount": "15.10",
     "date": "2026-07-21",
-    "description": "Flight ticket for tech conference in Boston",
+    "description": "Office notebooks and pens",
     "status": "Pending",
     "submittedAt": "2026-07-21T09:15:00.000Z",
     "notes": ""
@@ -24,34 +24,23 @@
   {
     "id": "exp-003",
     "employeeName": "Bob Johnson",
-    "category": "Software",
-    "amount": 79.99,
+    "category": "Travel",
+    "amount": "55.75",
     "date": "2026-07-22",
-    "description": "Monthly subscription for project management tool",
-    "status": "Approved",
+    "description": "Taxi fare to airport",
+    "status": "Pending",
     "submittedAt": "2026-07-22T11:00:00.000Z",
-    "notes": "Pre-approved SaaS license."
+    "notes": ""
   },
   {
     "id": "exp-004",
     "employeeName": "Alice Williams",
-    "category": "Office Supplies",
-    "amount": 120.45,
+    "category": "Lodging",
+    "amount": "100.05",
     "date": "2026-07-23",
-    "description": "Ergonomic keyboard and mouse support",
-    "status": "Rejected",
-    "submittedAt": "2026-07-23T16:45:00.000Z",
-    "notes": "Please request through regular IT procurement first."
-  },
-  {
-    "id": "exp-005",
-    "employeeName": "Charlie Brown",
-    "category": "Travel",
-    "amount": 15.50,
-    "date": "2026-07-24",
-    "description": "Train ticket to offsite meeting",
+    "description": "Hotel overnight stay",
     "status": "Pending",
-    "submittedAt": "2026-07-24T08:00:00.000Z",
+    "submittedAt": "2026-07-23T16:45:00.000Z",
     "notes": ""
   }
 ]

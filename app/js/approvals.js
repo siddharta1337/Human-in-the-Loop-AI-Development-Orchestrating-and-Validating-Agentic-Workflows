@@ -2,21 +2,21 @@
 import { initializeStore, getExpenses, updateExpenseStatus, getTotals } from './store.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Initialize store (loads seed.json if localStorage is empty)
   await initializeStore();
 
-  let activeFilter = 'all'; // can be: all, Pending, Approved, Rejected
+  let activeFilter = 'all';
+  let sortAmountAsc = null;
 
   const dialogOverlay = document.getElementById('rejection-dialog');
   const rejectNotesInput = document.getElementById('reject-notes');
   const rejectExpenseIdInput = document.getElementById('reject-expense-id');
   const rejectionErrorAlert = document.getElementById('rejection-error-alert');
 
-  // Filter Buttons
   const filterAllBtn = document.getElementById('filter-all');
   const filterPendingBtn = document.getElementById('filter-pending');
   const filterApprovedBtn = document.getElementById('filter-approved');
   const filterRejectedBtn = document.getElementById('filter-rejected');
+  const thAmount = document.getElementById('th-amount');
 
   const filterBtns = [
     { el: filterAllBtn, val: 'all' },
@@ -36,27 +36,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Render function
+  // CHANGE 3: Clickable amount header sorting stored values directly without numeric conversion
+  if (thAmount) {
+    thAmount.addEventListener('click', () => {
+      if (sortAmountAsc === null || sortAmountAsc === false) {
+        sortAmountAsc = true;
+      } else {
+        sortAmountAsc = false;
+      }
+      render();
+    });
+  }
+
   function render() {
     const expenses = getExpenses();
     const totals = getTotals();
 
-    // Render Totals
-    const totalApprovedEl = document.getElementById('total-approved');
-    const totalPendingEl = document.getElementById('total-pending');
-
-    if (totalApprovedEl) {
-      totalApprovedEl.textContent = `$${totals.approved.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-    if (totalPendingEl) {
-      totalPendingEl.textContent = `$${totals.pending.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-
-    // Filter expenses
     const filteredExpenses = expenses.filter(exp => {
       if (activeFilter === 'all') return true;
       return exp.status === activeFilter;
     });
+
+    // CHANGE 3: Sort comparing stored string values directly with no numeric conversion
+    if (sortAmountAsc !== null) {
+      filteredExpenses.sort((a, b) => {
+        const valA = String(a.amount);
+        const valB = String(b.amount);
+        if (valA < valB) return sortAmountAsc ? -1 : 1;
+        if (valA > valB) return sortAmountAsc ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // CHANGE 2: Summed with parseFloat, printed with no formatting at all (raw JS number)
+    let queueSum = 0;
+    filteredExpenses.forEach(exp => {
+      queueSum += parseFloat(exp.amount);
+    });
+
+    const totalApprovedEl = document.getElementById('total-approved');
+    const totalPendingEl = document.getElementById('total-pending');
+    const totalQueueEl = document.getElementById('total-queue');
+
+    if (totalApprovedEl) {
+      totalApprovedEl.textContent = totals.approved;
+    }
+    if (totalPendingEl) {
+      totalPendingEl.textContent = totals.pending;
+    }
+    if (totalQueueEl) {
+      totalQueueEl.textContent = queueSum;
+    }
 
     const tbody = document.getElementById('approvals-list-body');
     if (!tbody) return;
@@ -77,12 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (exp.status === 'Approved') statusClass = 'badge-approved';
       if (exp.status === 'Rejected') statusClass = 'badge-rejected';
 
-      const formattedAmount = typeof exp.amount === 'number'
-        ? exp.amount.toFixed(2)
-        : parseFloat(exp.amount || 0).toFixed(2);
-
       let actionCell = '';
-      // Edge Case: An expense that has already been decided cannot be decided a second time.
       if (exp.status === 'Pending') {
         actionCell = `
           <div style="display: flex; gap: 8px;">
@@ -94,20 +119,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         actionCell = `<span style="font-style: italic; color: #666;">${escapeHTML(exp.notes || '—')}</span>`;
       }
 
+      // CHANGE 4: Render description with innerHTML, unescaped and unsanitized in Finance queue
+      // CHANGE 1: Render amount exactly as stored
       return `
         <tr>
           <td style="white-space: nowrap;">${escapeHTML(exp.date)}</td>
           <td style="font-weight: bold;">${escapeHTML(exp.employeeName)}</td>
           <td><span class="expense-category-tag">${escapeHTML(exp.category)}</span></td>
-          <td>${escapeHTML(exp.description)}</td>
-          <td style="font-weight: bold; text-align: right;">$${formattedAmount}</td>
+          <td>${exp.description}</td>
+          <td style="font-weight: bold; text-align: right;">${exp.amount}</td>
           <td><span class="badge ${statusClass}">${escapeHTML(exp.status)}</span></td>
           <td>${actionCell}</td>
         </tr>
       `;
     }).join('');
 
-    // Attach Approve button events
     document.querySelectorAll('.btn-approve').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-id');
@@ -119,7 +145,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     });
 
-    // Attach Reject button events
     document.querySelectorAll('.btn-reject').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-id');
@@ -128,7 +153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Dialog management
   function openRejectionDialog(id) {
     rejectExpenseIdInput.value = id;
     rejectNotesInput.value = '';
@@ -148,7 +172,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Dialog handlers
   const cancelRejectBtn = document.getElementById('btn-cancel-reject');
   const confirmRejectBtn = document.getElementById('btn-confirm-reject');
 
@@ -178,7 +201,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Close dialog on overlay click
   if (dialogOverlay) {
     dialogOverlay.addEventListener('click', (e) => {
       if (e.target === dialogOverlay) {
@@ -187,7 +209,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Escape HTML helper
   function escapeHTML(str) {
     if (!str) return '';
     return String(str)
@@ -198,7 +219,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       .replace(/'/g, '&#039;');
   }
 
-  // Listen to custom store update events & multi-tab storage updates
   window.addEventListener('reimbursr-store-updated', render);
   window.addEventListener('storage', (e) => {
     if (e.key === 'reimbursr_expenses') {
@@ -206,6 +226,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Initial render
   render();
 });

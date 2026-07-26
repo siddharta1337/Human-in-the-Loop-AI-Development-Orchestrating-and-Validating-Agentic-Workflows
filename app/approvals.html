@@ -23,11 +23,15 @@
     <div class="totals-container">
       <div class="total-item">
         <div class="total-label">Total Approved Spent</div>
-        <div id="total-approved" class="total-value approved-spent">$0.00</div>
+        <div id="total-approved" class="total-value approved-spent">0</div>
       </div>
       <div class="total-item">
         <div class="total-label">Total Pending Review</div>
-        <div id="total-pending" class="total-value pending-spent">$0.00</div>
+        <div id="total-pending" class="total-value pending-spent">0</div>
+      </div>
+      <div class="total-item">
+        <div class="total-label">Total Queue Amount</div>
+        <div id="total-queue" class="total-value">0</div>
       </div>
     </div>
 
@@ -53,7 +57,7 @@
                 <th>Employee</th>
                 <th>Category</th>
                 <th>Description</th>
-                <th>Amount</th>
+                <th id="th-amount" style="cursor: pointer; user-select: none;">Amount ↕</th>
                 <th>Status</th>
                 <th>Notes / Actions</th>
               </tr>

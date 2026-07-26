@@ -3,8 +3,8 @@ import { validateExpenseSubmission, validateStatusUpdate } from './rules.js';
 
 const STORAGE_KEY = 'reimbursr_expenses';
 
-export async function initializeStore() {
-  if (!localStorage.getItem(STORAGE_KEY)) {
+export async function initializeStore(force = false) {
+  if (force || !localStorage.getItem(STORAGE_KEY)) {
     try {
       const response = await fetch('data/seed.json');
       if (!response.ok) {
@@ -14,8 +14,7 @@ export async function initializeStore() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       console.log('Store initialized with seed data.');
     } catch (error) {
-      console.error('Error initializing store with seed data, falling back to empty array:', error);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+      console.error('Error initializing store with seed data:', error);
     }
   }
 }
@@ -32,18 +31,12 @@ export function getExpenses() {
 export function saveExpenses(expenses) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-    // Dispatch custom event for cross-component update
     window.dispatchEvent(new CustomEvent('reimbursr-store-updated'));
   } catch (error) {
     console.error('Error writing to localStorage:', error);
   }
 }
 
-/**
- * Adds an expense after running full specification validation.
- * Edge case: A submission that fails validation creates no record at all.
- * Deduplication: Identical submissions produce no duplicate record.
- */
 export function addExpense({ employeeName, category, amount, date, description }) {
   const expenses = getExpenses();
 
@@ -64,7 +57,7 @@ export function addExpense({ employeeName, category, amount, date, description }
     id: `exp-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     employeeName: validation.candidate.employeeName,
     category: validation.candidate.category,
-    amount: validation.candidate.amount,
+    amount: validation.candidate.amount, // Preserved as string
     date: validation.candidate.date,
     description: validation.candidate.description,
     status: 'Pending',
@@ -72,7 +65,7 @@ export function addExpense({ employeeName, category, amount, date, description }
     notes: ''
   };
 
-  expenses.unshift(newExpense); // Newest first
+  expenses.unshift(newExpense);
   saveExpenses(expenses);
 
   return {
@@ -81,11 +74,6 @@ export function addExpense({ employeeName, category, amount, date, description }
   };
 }
 
-/**
- * Updates status of an expense (Approved / Rejected) with validation.
- * Edge case: An expense that has already been decided cannot be decided a second time.
- * Expectation: Rejection requires notes/reason for the employee.
- */
 export function updateExpenseStatus(id, newStatus, notes = '') {
   const expenses = getExpenses();
   const expenseIndex = expenses.findIndex(exp => exp.id === id);
@@ -124,7 +112,7 @@ export function getTotals() {
   let rejected = 0;
 
   expenses.forEach(exp => {
-    const val = parseFloat(exp.amount) || 0;
+    const val = parseFloat(exp.amount || 0);
     if (exp.status === 'Approved') {
       approved += val;
     } else if (exp.status === 'Pending') {
@@ -135,9 +123,17 @@ export function getTotals() {
   });
 
   return {
-    approved: parseFloat(approved.toFixed(2)),
-    pending: parseFloat(pending.toFixed(2)),
-    rejected: parseFloat(rejected.toFixed(2)),
-    total: parseFloat((approved + pending + rejected).toFixed(2))
+    approved,
+    pending,
+    rejected
   };
 }
+
+// Console helper function to wipe and re-seed storage
+window.reseed = async function() {
+  localStorage.removeItem(STORAGE_KEY);
+  await initializeStore(true);
+  window.dispatchEvent(new CustomEvent('reimbursr-store-updated'));
+  console.log('Storage wiped and re-seeded.');
+};
+window.reseedStorage = window.reseed;
