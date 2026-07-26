@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filterApprovedBtn = document.getElementById('filter-approved');
   const filterRejectedBtn = document.getElementById('filter-rejected');
   const thAmount = document.getElementById('th-amount');
+  const btnExportApproved = document.getElementById('btn-export-approved');
 
   const filterBtns = [
     { el: filterAllBtn, val: 'all' },
@@ -207,6 +208,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeRejectionDialog();
       }
     });
+  }
+
+  function csvField(value) {
+    const str = value === null || value === undefined ? '' : String(value);
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+
+  function exportApprovedExpensesToCSV() {
+    const approvedExpenses = getExpenses().filter(exp => exp.status === 'Approved');
+
+    const headers = ['Date', 'Employee', 'Category', 'Description', 'Amount', 'Status', 'Notes', 'Submitted At'];
+    const rows = approvedExpenses.map(exp => [
+      exp.date,
+      exp.employeeName,
+      exp.category,
+      exp.description,
+      exp.amount,
+      exp.status,
+      exp.notes,
+      exp.submittedAt
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(csvField).join(','))
+      .join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `reimbursr-approved-expenses-${today}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  if (btnExportApproved) {
+    btnExportApproved.addEventListener('click', exportApprovedExpensesToCSV);
   }
 
   function escapeHTML(str) {
