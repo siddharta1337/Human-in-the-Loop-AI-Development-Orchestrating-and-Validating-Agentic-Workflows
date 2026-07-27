@@ -1,5 +1,5 @@
 ---
-name: check-safety
+name: check-security
 description: Reviews a change against a threat model. Read-only. Runs after code is written, in parallel with check-quality.
 tools: Read, Grep, Glob
 model: opus
