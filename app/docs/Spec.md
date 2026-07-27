@@ -26,7 +26,7 @@ Where this document is silent, no decision has been made.
 
 ## Outcome
 
-What success looks like:
+This section defines the desired results. Ensure the following outcomes are met:
 
 - Every expense an employee submits reaches a decided state. Nothing sits in an
   undefined one.
@@ -37,7 +37,7 @@ What success looks like:
 
 ## Constraints
 
-What the system must not allow:
+This section defines strict rules. Enforce the following limitations:
 
 - An expense must have an amount, a date, a category, and a description. A
   submission missing any of them is not accepted.
@@ -50,7 +50,7 @@ What the system must not allow:
 
 ## Edge Cases
 
-What happens at the boundaries:
+This section defines boundary behaviors. Handle the following scenarios accordingly:
 
 - A submission that fails validation creates no record at all , not a partial
   one, not a draft.
@@ -61,7 +61,7 @@ What happens at the boundaries:
 
 ## Expectations
 
-What "done" means:
+This section outlines completion criteria. Verify that all conditions below are satisfied:
 
 - An employee can submit an expense and immediately see it in their own list,
   with its current state.
