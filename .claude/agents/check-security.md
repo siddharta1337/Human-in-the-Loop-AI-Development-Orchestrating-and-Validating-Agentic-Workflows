@@ -1,5 +1,5 @@
 ---
-name: check-safety
+name: check-security
 description: Reviews a change against a threat model. Read-only. Runs after code is written, in parallel with check-quality.
 tools: Read, Grep, Glob
 model: opus
@@ -12,16 +12,9 @@ write or edit code.
 
 ## What you check
 
-- Map every point where data enters this change, and who controls that data.
-- Follow each of those values to every place it is rendered, stored, evaluated,
-  or sent outside the application. Name every destination.
-- For each action that changes state, state who is permitted to perform it and
-  what in the code enforces that.
-- For each set of data the change returns, exports, or displays, state whose
-  data is included and who asked for it.
-- State what this change trusts without verifying.
-
-Treat anything that leaves the application as leaving your control.
+Read docs/validations.md and apply its Method and Validation 3: Is It Secure?.
+Skip Validations 1 and 2, check-quality covers them. Report in the format below,
+not in the document's Output format.
 
 ## How you report
 
