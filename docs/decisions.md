@@ -1,10 +1,10 @@
-# Reimbursr — Specification
+# Reimbursr Project Decisions
 
 **What this is:** a record of decisions made before implementation started.
 
 **Who owns it:** the person making the decisions, not the person writing the code.
 
-**Who reads it:** whoever implements Reimbursr , human or agent.
+**Who reads it:** whoever implements Reimbursr, human or agent.
 
 ## Purpose
 
@@ -16,9 +16,9 @@ Where this document is silent, no decision has been made.
 
 ## Users
 
-**Employee** : submits expenses and follows what happened to them.
+**Employee:** submits expenses and follows what happened to them.
 
-**Finance reviewer** : reviews submitted expenses and approves or rejects them.
+**Finance reviewer:** reviews submitted expenses and approves or rejects them.
 
 
 ## Outcome
@@ -47,7 +47,7 @@ This section defines strict rules. Enforce the following limitations:
 
 This section defines boundary behaviors. Handle the following scenarios accordingly:
 
-- A submission that fails validation creates no record at all , not a partial  one, not a draft.
+- A submission that fails validation creates no record at all, not a partial one, not a draft.
 - An expense that has already been decided cannot be decided a second time.
 - The same expense submitted twice is one expense, not two.
 
@@ -73,4 +73,4 @@ Deliberately excluded from this version:
 
 
 Implementation tasks are tracked separately. This document does not sequence
-work , it records what was decided.
+work, it records what was decided.

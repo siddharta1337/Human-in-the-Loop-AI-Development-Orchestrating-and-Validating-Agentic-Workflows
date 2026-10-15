@@ -1,6 +1,6 @@
 # Reimbursr
 
-Teaching artifact for the O'Reilly live course **"Human-in-the-Loop AI Development."**
+Teaching artifact for the live course **"Human-in-the-Loop AI Development."**
 Reimbursr is a fictional expense-reimbursement portal used as the course's golden path:
 a single running example that evolves checkpoint by checkpoint as the course progresses.
 
@@ -15,4 +15,4 @@ Some code in this repo is **intentionally wrong** — planted bugs used for live
 demonstrations. These are marked with `// COURSE-BUG(sN): <description> — DO NOT FIX`
 comments and should never be repaired outside of the course narrative.
 
-See [CLAUDE.md](CLAUDE.md) for the full stack constraints and repo structure.
+See [AGENTS.md](AGENTS.md) for the full stack constraints and repo structure.
