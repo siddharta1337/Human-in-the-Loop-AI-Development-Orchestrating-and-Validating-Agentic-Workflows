@@ -1,6 +1,6 @@
 # Reimbursr
 
-Teaching artifact for the O'Reilly live course **"Human-in-the-Loop AI Development."**
+Teaching artifact for the live course **"Human-in-the-Loop AI Development."**
 Reimbursr is a fictional expense-reimbursement portal used as the course's golden path:
 a single running example that evolves checkpoint by checkpoint as the course progresses.
 
