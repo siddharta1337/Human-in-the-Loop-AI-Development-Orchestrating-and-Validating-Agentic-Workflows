@@ -1,10 +1,10 @@
 # Reimbursr Project Decisions
 
-**What this is:** a record of decisions made before implementation started.
+**What this is:** a record of the decisions made while building this project. It keeps the code aligned with the project goals, helps avoid known pitfalls, and carries forward what the team has learned.
 
-**Who owns it:** the person making the decisions, not the person writing the code.
+**Who owns it:** the team. Team members are responsible for keeping it up to date.
 
-**Who reads it:** whoever implements Reimbursr, human or agent.
+**Who reads it:** anyone working on the project, human or agent. It is the shared guideline for the whole project.
 
 ## Purpose
 
@@ -72,5 +72,4 @@ Deliberately excluded from this version:
 - Notifications of any kind
 
 
-Implementation tasks are tracked separately. This document does not sequence
-work, it records what was decided.
+Implementation tasks are tracked separately. This document does not sequence work, it records what was decided.
